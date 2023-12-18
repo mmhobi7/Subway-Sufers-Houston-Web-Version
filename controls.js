@@ -1,3 +1,53 @@
+let arrowLeft = {
+    "key": "ArrowLeft",
+    "code": "ArrowLeft",
+    "keyCode": 37,
+    "which": 37,
+    "bubbles": true,
+};
+
+let arrowRight = {
+    "key": "ArrowRight",
+    "code": "ArrowRight",
+    "keyCode": 39,
+    "which": 39,
+    "bubbles": true,
+};
+
+let arrowUp = {
+    "key": "ArrowUp",
+    "code": "ArrowUp",
+    "keyCode": 38,
+    "which": 38,
+    "bubbles": true,
+};
+
+let arrowDown = {
+    "key": "ArrowDown",
+    "code": "ArrowDown",
+    "keyCode": 40,
+    "which": 40,
+    "bubbles": true,
+};
+
+function userInput(direction) {
+    let dir = null;
+    switch (direction) {
+        case "left": dir = arrowLeft; break;
+        case "right": dir = arrowRight; break;
+        case "up": dir = arrowUp; break;
+        case "down": dir = arrowDown; break;
+    }
+    if (dir != null) {
+        console.log("key PRESS" + direction)
+        document.getElementById("game_frame").contentWindow.document.dispatchEvent(new KeyboardEvent('keydown', dir));
+        document.getElementById("game_frame").contentWindow.document.dispatchEvent(new KeyboardEvent('keyup', dir));
+        // document.dispatchEvent(new KeyboardEvent('keydown', arrowLeft));
+        // document.dispatchEvent(new KeyboardEvent('keyup', arrowLeft));
+        console.log('Done');
+    }
+}
+
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
@@ -10,6 +60,7 @@ const options = {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mpPose.VERSION}/${file}`;
     }
 };
+
 console.log(mpPose.VERSION);
 
 
@@ -25,10 +76,9 @@ is_jumping = false
 is_squating = false
 last_hip_to_foot_distance = null
 
-bililiteRange.sendkeys['{ArrowUp}']
-
 
 let activeEffect = 'mask';
+// userInput("down")
 function onResults(results) {
     console.log("brru");
     // Hide the spinner.
@@ -49,7 +99,7 @@ function onResults(results) {
 
         if (last_left_foot_y != null && last_right_foot_y != null && left_foot.y < last_left_foot_y - jump_threshold && right_foot.y < last_right_foot_y - jump_threshold && is_jumping == false && is_squating == false) {
             // pyautogui.press('up')
-            bililiteRange.sendkeys['{ArrowUp}']
+            userInput("up")
             is_jumping = true
             is_squating = false
             console.log("Jump detected!")
@@ -58,7 +108,7 @@ function onResults(results) {
             (left_hip.y + right_hip.y) - last_hip_y > squat_threshold &&
             last_hip_to_foot_distance - ((left_hip.y + right_hip.y) + (left_foot.y + right_foot.y)) > squat_threshold && is_jumping == false && is_squating == false) {
             // pyautogui.press('down')
-            bililiteRange.sendkeys['{ArrowDown}']
+            userInput("down")
             is_jumping = false
             is_squating = true
             console.log("Squat detected!")
@@ -106,7 +156,7 @@ function onResults(results) {
         drawingUtils.drawLandmarks(canvasCtx, Object.values(mpPose.POSE_LANDMARKS_NEUTRAL)
             .map(index => results.poseLandmarks[index]), { visibilityMin: 0.65, color: 'white', fillColor: 'white' });
 
-        console.log(results.poseLandmarks);
+        // console.log(results.poseLandmarks);
     }
     canvasCtx.restore();
     // if (results.poseWorldLandmarks) {
@@ -151,7 +201,7 @@ const camera = new Camera(videoElement, {
 
         // Get the pose landmarks from the frame
         // const poses = await pose.estimatePoses(canvasElement);
-        console.log("yee");
+        // console.log("yee");
         await pose.send({ image: videoElement });
 
         // Check if the person is jumping
