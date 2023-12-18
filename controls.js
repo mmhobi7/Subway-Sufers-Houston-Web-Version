@@ -78,9 +78,33 @@ last_hip_to_foot_distance = null
 
 
 let activeEffect = 'mask';
+
+var sourceHtml = 'https://szhong.4399.com/4399swf//upload_swf/ftp36/liuxinyu/20210521/jj2/index.html'
+
+
+async function file_get_contents(uri, callback) {
+    let res = await fetch(uri),
+        ret = await res.text(); 
+    return callback ? callback(ret) : ret; // a Promise() actually.
+}
+
+// or
+
+function addIFrame(sourceHtmlContent){
+    console.log("starting");
+    let iFrame = document.createElement("iframe");
+    var blob = new Blob([sourceHtmlContent], {type: 'text/html'});
+    /* var iframe = document.querySelector("iframe"); */
+    iFrame.src = URL.createObjectURL(blob);
+    document.querySelector(".centerd").appendChild(iFrame);
+    console.log("done32");
+}
+
+file_get_contents(sourceHtml).then(ret => addIFrame(ret));
+
 // userInput("down")
 function onResults(results) {
-    console.log("brru");
+    // console.log("brru");
     // Hide the spinner.
     // document.body.classList.add('loaded');
     // Update the frame rate.
