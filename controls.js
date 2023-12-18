@@ -88,8 +88,6 @@ async function file_get_contents(uri, callback) {
     return callback ? callback(ret) : ret; // a Promise() actually.
 }
 
-// or
-
 function addIFrame(sourceHtmlContent){
     console.log("starting");
     let iFrame = document.createElement("iframe");
@@ -99,8 +97,6 @@ function addIFrame(sourceHtmlContent){
     document.querySelector(".centerd").appendChild(iFrame);
     console.log("done32");
 }
-
-file_get_contents(sourceHtml).then(ret => addIFrame(ret));
 
 // userInput("down")
 function onResults(results) {
