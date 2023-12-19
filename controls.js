@@ -153,13 +153,13 @@ function isSquat(landmarks) {
     avg_height_difference.add(height_difference);
 
     change = 1.0 - (height_difference / avg_height_difference.getAverage());
-    document.getElementById("text_box_1").textContent = change;
+    // document.getElementById("text_box_1").textContent = change;
     // Set a threshold for jump detection
     squat_threshold = 0.15  // Adjust this value based on your scenario
 
     // document.getElementById("text_box_1").textContent = height_difference;
     // Check if the height difference is above the threshold
-    return change > squat_threshold
+    return change - squat_threshold
 }
 
 const avg_ankle_height = new movingAverage(10);
@@ -180,10 +180,21 @@ function isJump(landmarks) {
     // Set a threshold for squat detection
     change = 1.0 - (ankle_height / avg_ankle_height.getAverage());
     jump_threshold = 0.02  // Adjust this value based on your scenario
-    document.getElementById("text_box_1").textContent = change;
+    // document.getElementById("text_box_1").textContent = change;
     // Check if knees are lower than hips (squat position)
-    return change > jump_threshold
+    return change - jump_threshold
 
+}
+
+function findMaximumElementIndex(arr) {
+    let maxIndex = 0;
+    for (let i = 1; i < arr.length; i++) {
+        if (arr[i] > arr[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+    console.log(maxIndex + " b " + arr[maxIndex])
+    return maxIndex;
 }
 
 // userInput("down")
@@ -200,12 +211,20 @@ function onResults(results) {
     if (results.poseLandmarks && previous_result) {
         // Calculate the distance between the hips landmarks
         // current_hip_distance = Math.abs(left_hip.y - right_hip.y) * canvasElement.width;
-        if (isJump(results.poseLandmarks)) {
-            userInput("up");
-            console.log("jump");
-        } else if (isSquat(results.poseLandmarks)) {
-            userInput("down");
-            console.log("squat");
+
+        // place moves in array
+        let arr = [isJump(results.poseLandmarks), isSquat(results.poseLandmarks), 0, 0];
+        let maxIndex = findMaximumElementIndex(arr);
+        console.log(arr);
+        console.log(maxIndex);
+        document.getElementById("text_box_1").textContent = maxIndex + " " + arr[maxIndex];
+        if (arr[maxIndex] > 0) {
+            switch (maxIndex) {
+                case 0: userInput("up"); break;
+                case 1: userInput("down"); break;
+                case 2: userInput("left"); break;
+                case 3: userInput("right"); break;
+            }
         }
     }
     previous_result = results;
