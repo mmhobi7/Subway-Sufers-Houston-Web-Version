@@ -103,8 +103,8 @@ console.log('wait!');
 
 waitForElm('#game').then((elm) => {
     console.log('Element is ready');
-    elm.style.width = "59%";
-    elm.style.height = "60%";
+    // elm.style.width = "59%";
+    // elm.style.height = "60%";
     elm.style.margin = 0;
     elm.style.padding = 0;
     elm.style.overflow = "hidden";
@@ -253,7 +253,7 @@ function onResults(results) {
         let maxIndex = findMaximumElementIndex(arr);
         console.log(arr);
         console.log(maxIndex);
-        document.getElementById("text_box_1").textContent = maxIndex + " " + arr[maxIndex];
+        document.getElementById("text_box_1").textContent = arr[maxIndex];
         if (arr[maxIndex] > 0) {
             switch (maxIndex) {
                 case 0: userInput("up"); break;
