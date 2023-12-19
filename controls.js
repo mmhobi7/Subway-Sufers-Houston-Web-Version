@@ -30,11 +30,24 @@ let arrowDown = {
     "bubbles": true,
 };
 
+lastSide = Date.now();
+timeDelay = 600;
+
 function userInput(direction) {
     let dir = null;
     switch (direction) {
-        case "left": dir = arrowLeft; break;
-        case "right": dir = arrowRight; break;
+        case "left":
+            if (Date.now() - lastSide > timeDelay) {
+                dir = arrowLeft;
+                lastSide = Date.now();
+            }
+            break;
+        case "right":
+            if (Date.now() - lastSide > timeDelay) {
+                dir = arrowRight;
+                lastSide = Date.now();
+            }
+            break;
         case "up": dir = arrowUp; break;
         case "down": dir = arrowDown; break;
     }
@@ -109,9 +122,10 @@ waitForElm('#game').then((elm) => {
     elm.style.padding = 0;
     elm.style.overflow = "hidden";
     // elm.style.z-index = 999999;
+    elm.style.zIndex="0";
     elm.style.display = "block";
     elm.style.margin = "0 auto";
-    elm.style.opacity = "0.5";
+    // elm.style.opacity = "0.5";
 });
 
 // Declaration
@@ -155,7 +169,7 @@ function isSquat(landmarks) {
     change = 1.0 - (height_difference / avg_height_difference.getAverage());
     // document.getElementById("text_box_1").textContent = change;
     // Set a threshold for jump detection
-    squat_threshold = 0.10  // Adjust this value based on your scenario
+    squat_threshold = 0.08  // Adjust this value based on your scenario
 
     // document.getElementById("text_box_1").textContent = height_difference;
     // Check if the height difference is above the threshold
@@ -185,8 +199,6 @@ function isJump(landmarks) {
     return change - jump_threshold
 }
 
-const avg_left_ankle = new movingAverage(10);
-const avg_right_ankle = new movingAverage(10);
 const avg_ankle_point = new movingAverage(10);
 
 function isSide(landmarks) {
@@ -197,21 +209,22 @@ function isSide(landmarks) {
     left_hip = landmarks[mpPose.POSE_LANDMARKS.LEFT_HIP]
     right_hip = landmarks[mpPose.POSE_LANDMARKS.RIGHT_HIP]
 
-    avg_left_ankle.add(left_ankle.x);
-    avg_right_ankle.add(right_ankle.x);
-
     // Calculate the average distance of ankles
     ankle_point = (left_ankle.x + right_ankle.x) / 2
     avg_ankle_point.add(ankle_point);
 
-    dampener = 1;
+    dampener = 1; // why would I want to diminish the signal?
 
     total = (1.0 - (ankle_point / avg_ankle_point.getAverage())) * dampener;
     // document.getElementById("text_box_1").textContent = total;
+    // avgSide.add(total);
     return total;
 }
 
-ankle_threshold = 0.005;
+ankle_threshold = 0.01;
+// const avgSide = new movingAverage(10); 
+// side movements can be spammed unlock up and down, they need to be slowed down
+// actually I've decided to cheat for now: you will never bump into the side walls
 
 function isLeft(landmarks) {
     return isSide(landmarks) - ankle_threshold;
