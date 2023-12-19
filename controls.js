@@ -55,7 +55,7 @@ function userInput(direction) {
         console.log("key PRESS" + direction)
         document.dispatchEvent(new KeyboardEvent('keydown', dir));
         document.dispatchEvent(new KeyboardEvent('keyup', dir));
-        document.getElementById("text_box").textContent = direction + " " + Date.now();
+        document.getElementById("text_box").textContent = direction; //+ " " + Date.now();
         console.log('Done');
     }
 }
@@ -266,7 +266,7 @@ function onResults(results) {
         let maxIndex = findMaximumElementIndex(arr);
         console.log(arr);
         console.log(maxIndex);
-        document.getElementById("text_box_1").textContent = arr[maxIndex];
+        // document.getElementById("text_box_1").textContent = arr[maxIndex];
         if (arr[maxIndex] > 0) {
             switch (maxIndex) {
                 case 0: userInput("up"); break;
