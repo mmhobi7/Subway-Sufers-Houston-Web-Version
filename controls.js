@@ -155,7 +155,7 @@ function isSquat(landmarks) {
     change = 1.0 - (height_difference / avg_height_difference.getAverage());
     // document.getElementById("text_box_1").textContent = change;
     // Set a threshold for jump detection
-    squat_threshold = 0.15  // Adjust this value based on your scenario
+    squat_threshold = 0.10  // Adjust this value based on your scenario
 
     // document.getElementById("text_box_1").textContent = height_difference;
     // Check if the height difference is above the threshold
@@ -183,7 +183,42 @@ function isJump(landmarks) {
     // document.getElementById("text_box_1").textContent = change;
     // Check if knees are lower than hips (squat position)
     return change - jump_threshold
+}
 
+const avg_left_ankle = new movingAverage(10);
+const avg_right_ankle = new movingAverage(10);
+const avg_ankle_point = new movingAverage(10);
+
+function isSide(landmarks) {
+    left_ankle = landmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_ANKLE]
+    right_ankle = landmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_ANKLE]
+    left_knee = landmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_KNEE]
+    right_knee = landmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_KNEE]
+    left_hip = landmarks[mpPose.POSE_LANDMARKS.LEFT_HIP]
+    right_hip = landmarks[mpPose.POSE_LANDMARKS.RIGHT_HIP]
+
+    avg_left_ankle.add(left_ankle.x);
+    avg_right_ankle.add(right_ankle.x);
+
+    // Calculate the average distance of ankles
+    ankle_point = (left_ankle.x + right_ankle.x) / 2
+    avg_ankle_point.add(ankle_point);
+
+    dampener = 1;
+
+    total = (1.0 - (ankle_point / avg_ankle_point.getAverage())) * dampener;
+    // document.getElementById("text_box_1").textContent = total;
+    return total;
+}
+
+ankle_threshold = 0.005;
+
+function isLeft(landmarks) {
+    return isSide(landmarks) - ankle_threshold;
+}
+
+function isRight(landmarks) {
+    return -isSide(landmarks) - ankle_threshold;
 }
 
 function findMaximumElementIndex(arr) {
@@ -213,7 +248,8 @@ function onResults(results) {
         // current_hip_distance = Math.abs(left_hip.y - right_hip.y) * canvasElement.width;
 
         // place moves in array
-        let arr = [isJump(results.poseLandmarks), isSquat(results.poseLandmarks), 0, 0];
+        // TODO: rank res by threshold percentage
+        let arr = [isJump(results.poseLandmarks), isSquat(results.poseLandmarks), isLeft(results.poseLandmarks), isRight(results.poseLandmarks)];
         let maxIndex = findMaximumElementIndex(arr);
         console.log(arr);
         console.log(maxIndex);
