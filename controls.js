@@ -40,10 +40,9 @@ function userInput(direction) {
     }
     if (dir != null) {
         console.log("key PRESS" + direction)
-        document.getElementById("game_frame").contentWindow.document.dispatchEvent(new KeyboardEvent('keydown', dir));
-        document.getElementById("game_frame").contentWindow.document.dispatchEvent(new KeyboardEvent('keyup', dir));
-        // document.dispatchEvent(new KeyboardEvent('keydown', arrowLeft));
-        // document.dispatchEvent(new KeyboardEvent('keyup', arrowLeft));
+        document.dispatchEvent(new KeyboardEvent('keydown', dir));
+        document.dispatchEvent(new KeyboardEvent('keyup', dir));
+        document.getElementById("text_box").textContent = direction + " " + Date.now();
         console.log('Done');
     }
 }
@@ -79,26 +78,116 @@ last_hip_to_foot_distance = null
 
 let activeEffect = 'mask';
 
-var sourceHtml = 'https://szhong.4399.com/4399swf//upload_swf/ftp36/liuxinyu/20210521/jj2/index.html'
 
+function waitForElm(selector) {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
 
-async function file_get_contents(uri, callback) {
-    let res = await fetch(uri),
-        ret = await res.text(); 
-    return callback ? callback(ret) : ret; // a Promise() actually.
+        const observer = new MutationObserver(mutations => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
 }
 
-function addIFrame(sourceHtmlContent){
-    console.log("starting");
-    let iFrame = document.createElement("iframe");
-    var blob = new Blob([sourceHtmlContent], {type: 'text/html'});
-    /* var iframe = document.querySelector("iframe"); */
-    iFrame.src = URL.createObjectURL(blob);
-    document.querySelector(".centerd").appendChild(iFrame);
-    console.log("done32");
+console.log('wait!');
+
+waitForElm('#game').then((elm) => {
+    console.log('Element is ready');
+    elm.style.width = "59%";
+    elm.style.height = "60%";
+    elm.style.margin = 0;
+    elm.style.padding = 0;
+    elm.style.overflow = "hidden";
+    // elm.style.z-index = 999999;
+    elm.style.display = "block";
+    elm.style.margin = "0 auto";
+    elm.style.opacity = "0.5";
+});
+
+// Declaration
+class movingAverage {
+    constructor(length) {
+        this.length = length;
+        this.array = [];
+        this.sum = 0;
+    }
+
+    add(value) {
+        this.array.push(value);
+        this.sum += value;
+        if (this.array.length > this.length) {
+            this.sum -= this.array.shift();
+        }
+    }
+
+    getAverage() {
+        return this.sum / this.array.length;
+    }
+}
+
+const avg_height_difference = new movingAverage(10);
+
+function isSquat(landmarks) {
+    left_ankle = landmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_ANKLE]
+    right_ankle = landmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_ANKLE]
+    left_hip = landmarks[mpPose.POSE_LANDMARKS.LEFT_HIP]
+    right_hip = landmarks[mpPose.POSE_LANDMARKS.RIGHT_HIP]
+
+    // Calculate the average height of ankles
+    ankle_height = (left_ankle.y + right_ankle.y) / 2
+
+    avg_hip_height = (left_hip.y + right_hip.y) / 2
+
+    // Calculate the difference in height between ankles and hip
+    height_difference = ankle_height - avg_hip_height
+    avg_height_difference.add(height_difference);
+
+    change = 1.0 - (height_difference / avg_height_difference.getAverage());
+    document.getElementById("text_box_1").textContent = change;
+    // Set a threshold for jump detection
+    squat_threshold = 0.15  // Adjust this value based on your scenario
+
+    // document.getElementById("text_box_1").textContent = height_difference;
+    // Check if the height difference is above the threshold
+    return change > squat_threshold
+}
+
+const avg_ankle_height = new movingAverage(10);
+
+function isJump(landmarks) {
+    // Extract relevant landmarks
+    left_ankle = landmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_ANKLE]
+    right_ankle = landmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_ANKLE]
+    left_knee = landmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_KNEE]
+    right_knee = landmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_KNEE]
+    left_hip = landmarks[mpPose.POSE_LANDMARKS.LEFT_HIP]
+    right_hip = landmarks[mpPose.POSE_LANDMARKS.RIGHT_HIP]
+
+    // Calculate the average height of ankles
+    ankle_height = (left_ankle.y + right_ankle.y) / 2.0
+    avg_ankle_height.add(ankle_height);
+
+    // Set a threshold for squat detection
+    change = 1.0 - (ankle_height / avg_ankle_height.getAverage());
+    jump_threshold = 0.02  // Adjust this value based on your scenario
+    document.getElementById("text_box_1").textContent = change;
+    // Check if knees are lower than hips (squat position)
+    return change > jump_threshold
+
 }
 
 // userInput("down")
+var previous_result;
 function onResults(results) {
     // console.log("brru");
     // Hide the spinner.
@@ -108,39 +197,18 @@ function onResults(results) {
     // Draw the overlays.
 
     // Process this shet
-    if (results.poseLandmarks) {
-        left_foot = results.poseLandmarks[mpPose.POSE_LANDMARKS_LEFT.LEFT_ANKLE];
-        right_foot = results.poseLandmarks[mpPose.POSE_LANDMARKS_RIGHT.RIGHT_ANKLE];
-        left_hip = results.poseLandmarks[mpPose.POSE_LANDMARKS.LEFT_HIP];
-        right_hip = results.poseLandmarks[mpPose.POSE_LANDMARKS.RIGHT_HIP];
-
+    if (results.poseLandmarks && previous_result) {
         // Calculate the distance between the hips landmarks
-        current_hip_distance = Math.abs(left_hip.y - right_hip.y) * canvasElement.width;
-
-        if (last_left_foot_y != null && last_right_foot_y != null && left_foot.y < last_left_foot_y - jump_threshold && right_foot.y < last_right_foot_y - jump_threshold && is_jumping == false && is_squating == false) {
-            // pyautogui.press('up')
-            userInput("up")
-            is_jumping = true
-            is_squating = false
-            console.log("Jump detected!")
-        } else if (
-            last_hip_y &&
-            (left_hip.y + right_hip.y) - last_hip_y > squat_threshold &&
-            last_hip_to_foot_distance - ((left_hip.y + right_hip.y) + (left_foot.y + right_foot.y)) > squat_threshold && is_jumping == false && is_squating == false) {
-            // pyautogui.press('down')
-            userInput("down")
-            is_jumping = false
-            is_squating = true
-            console.log("Squat detected!")
-        } else {
-            is_jumping = false;
-            is_squating = false;
+        // current_hip_distance = Math.abs(left_hip.y - right_hip.y) * canvasElement.width;
+        if (isJump(results.poseLandmarks)) {
+            userInput("up");
+            console.log("jump");
+        } else if (isSquat(results.poseLandmarks)) {
+            userInput("down");
+            console.log("squat");
         }
-        last_left_foot_y = left_foot.y + right_foot.y
-        last_right_foot_y = right_foot.y
-        last_hip_y = left_hip.y + right_hip.y
-        last_hip_to_foot_distance = last_hip_y - Math.max(left_foot.y, right_foot.y)
     }
+    previous_result = results;
 
     // make this part async
     canvasCtx.save();
