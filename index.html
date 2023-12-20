@@ -1,51 +1,77 @@
-<meta charset="utf-8" />
-<title>Subway Surfers Houston Web Version</title>
-<script
-  src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-  crossorigin="anonymous"
-></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d@0.2/control_utils_3d.js" crossorigin="anonymous"></script> -->
-<script
-  src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6/control_utils.js"
-  crossorigin="anonymous"
-></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"
-  crossorigin="anonymous"
-></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"
-  crossorigin="anonymous"
-></script>
-
-<style>
-  .centerd {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 99vh;
-  }
-</style>
-
+<!DOCTYPE html>
 <html>
-  <head>
-    <style>
-      body {
-        background-color: rgb(31, 34, 39);
-      }
-    </style>
-    <!-- <h1>SURF</h1> -->
-  </head>
-  <body>
-    <div style="position: absolute; width: 99%">
-      <div id="game_div" class="centerd">
-      </div>
-    </div>
-    <div class="container">
-      <video class="input_video" hidden="hidden"></video>
-      <canvas class="output_canvas" width="1280px" height="720px"></canvas>
-    </div>
-  </body>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Subway Surfers</title>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+	<!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d@0.2/control_utils_3d.js" crossorigin="anonymous"></script> -->
+	<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6/control_utils.js"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+
+	<script type="text/javascript">document.domain = '4399.com'</script>
+	<script type="text/javascript" src="4399.js"></script>
+	<script>
+		window.config = {
+			loader: 'unity',
+			debug: false,
+			maxRatio: 16 / 9,
+			minRatio: 9 / 16,
+
+			title: 'Subway Surfers',
+			thumbnail: '.\/f652c.jpeg',
+			numScreenshots: 5,
+
+			unityVersion: '2019.4.18f1',
+			unityWebglBuildUrl: 'Build\/Houston.json',
+
+			fileSize: 35,
+			cachedDecompressedFileSizes: {
+				'Houston.asm.code.unityweb': 9284927,
+				'Houston.asm.framework.unityweb': 88106,
+				'Houston.asm.memory.unityweb': 1003567,
+				'Houston.data.unityweb': 17962100,
+				'Houston.wasm.code.unityweb': 7468688,
+				'Houston.wasm.framework.unityweb': 92489,
+			},
+		};
+	</script>
+	<style>
+		body {
+			background-color: rgb(31, 34, 39);
+		}
+	</style>
+</head>
+
+<body>
+
+	<body>
+		<div style="position: absolute;top: 20%;  z-index: 10;"> 
+			<b style="font-size:7vw; color:white;" id="text_box_1"></b>
+		</div>
+		<br>
+		<div style="position: absolute; width: 99%">
+			<div id="game_div" class="centerd">
+				<script src="./master-loader.js"></script>
+			</div>
+		</div>
+		<div style="position: absolute; top: 50%; left: 50%; margin-top: 0px; margin-left: -600px; z-index: 1; opacity: 0.5; pointer-events: none;"
+			class="container">
+			<video class="input_video" hidden="hidden"></video>
+			<canvas class="output_canvas" width="1280px" height="720px"></canvas>
+		</div>
+		<div style="position: absolute; z-index: 10;"> 
+			<b style="font-size:7vw; color:white;" id="text_box"> </b>
+		</div>
+	</body>
+</body>
+
 </html>
 
 <script src="controls.js"></script>
